@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.13.31",
     "clsx": "^2.1.1",
     "idb": "^8.0.2",
     "lucide-react": "^1.16.0",
