@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Download, Maximize2, Trash2, ArrowUpRight, HardDrive, Info } from "lucide-react";
+import { Download, Maximize2, Trash2, HardDrive } from "lucide-react";
 import { GenerationHistoryItem } from "@/lib/db";
 
 interface RecentCreationsGridProps {
@@ -24,7 +24,7 @@ export function RecentCreationsGrid({
     const link = document.createElement("a");
     link.href = item.imageBase64 || item.imageUrl;
     const slug = item.prompt.slice(0, 30).replace(/[^a-z0-9]/gi, "-").toLowerCase();
-    link.download = `prism-ai-${slug || "generation"}.png`;
+    link.download = `raphael-ai-${slug || "generation"}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -36,18 +36,18 @@ export function RecentCreationsGrid({
   };
 
   return (
-    <div className="w-full mt-12 pt-8 border-t border-black/[0.08] dark:border-white/[0.08]">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+    <div className="w-full max-w-[1128px] mx-auto py-8 border-t border-stone-200/80 dark:border-stone-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Recent creations
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
+            Recent Creations
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5">
-            <HardDrive className="w-3.5 h-3.5 text-indigo-500" />
-            <span>Saved privately in this browser's IndexedDB. Not cloud-synced.</span>
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 flex items-center gap-1.5">
+            <HardDrive className="w-3.5 h-3.5 text-amber-600" />
+            <span>Saved privately in this browser's local IndexedDB. 100% private.</span>
           </p>
         </div>
-        <span className="text-xs text-zinc-400 font-medium">
+        <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">
           {items.length} {items.length === 1 ? "creation" : "creations"}
         </span>
       </div>
@@ -57,7 +57,7 @@ export function RecentCreationsGrid({
           <div
             key={item.id}
             onClick={() => onSelect(item)}
-            className="group relative rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-black/[0.06] dark:border-white/[0.06] cursor-pointer aspect-square shadow-2xs hover:shadow-md transition-all duration-300"
+            className="group relative rounded-2xl overflow-hidden bg-stone-100 dark:bg-[#201913] border border-stone-200/80 dark:border-stone-800 cursor-pointer aspect-square shadow-2xs hover:shadow-md transition-all duration-300"
           >
             <img
               src={item.imageBase64 || item.imageUrl}
@@ -67,28 +67,28 @@ export function RecentCreationsGrid({
             />
 
             {/* Hover Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 flex flex-col justify-between">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 flex flex-col justify-between">
               <div className="flex justify-end gap-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onOpenLightbox(item);
                   }}
-                  className="p-1.5 rounded-lg bg-black/50 text-white hover:bg-black/80 transition-colors"
+                  className="p-1.5 rounded-lg bg-black/60 text-white hover:bg-black transition-colors"
                   title="Fullscreen"
                 >
                   <Maximize2 className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={(e) => handleDownload(e, item)}
-                  className="p-1.5 rounded-lg bg-black/50 text-white hover:bg-black/80 transition-colors"
+                  className="p-1.5 rounded-lg bg-black/60 text-white hover:bg-black transition-colors"
                   title="Download"
                 >
                   <Download className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={(e) => handleDelete(e, item.id)}
-                  className="p-1.5 rounded-lg bg-black/50 text-white hover:bg-red-500 transition-colors"
+                  className="p-1.5 rounded-lg bg-black/60 text-white hover:bg-rose-600 transition-colors"
                   title="Delete from local device"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -99,10 +99,10 @@ export function RecentCreationsGrid({
                 <p className="text-[11px] text-white line-clamp-2 font-medium">
                   "{item.prompt}"
                 </p>
-                <div className="flex items-center gap-1.5 text-[9px] text-zinc-300 mt-1">
+                <div className="flex items-center gap-1.5 text-[9px] text-stone-300 mt-1">
                   <span>{item.aspectRatio}</span>
                   <span>•</span>
-                  <span className="capitalize">{item.providerUsed}</span>
+                  <span className="capitalize">{item.modelUsed || item.providerUsed}</span>
                 </div>
               </div>
             </div>

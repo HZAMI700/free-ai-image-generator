@@ -2,20 +2,22 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Prism AI — Free AI Image Generator SaaS",
+  title: "Raphael AI — Free Unlimited AI Image Generator",
   description:
-    "Generate stunning AI images completely free. No login, no registration, no subscription. High quality multi-cluster AI image generation.",
+    "Generate stunning AI images completely free with FLUX.1 & SDXL multi-cluster routing. No login, no registration, no subscription, 100% free.",
   keywords: [
-    "AI Image Generator",
-    "Free AI Image",
-    "No login AI",
-    "Stable Diffusion",
-    "Flux Schnell",
-    "Free SaaS",
+    "Raphael AI",
+    "Free AI Image Generator",
+    "FLUX.1 schnell",
+    "Stable Diffusion XL",
+    "Cloudflare Workers AI",
+    "Hugging Face",
+    "Text to Image",
+    "No login AI generator",
   ],
-  authors: [{ name: "Prism AI Studio" }],
+  authors: [{ name: "Raphael AI Team" }],
   openGraph: {
-    title: "Prism AI — Free AI Image Generator",
+    title: "Raphael AI — Free Unlimited AI Image Generator",
     description: "Generate stunning AI images for free. No account required.",
     type: "website",
   },
@@ -28,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans bg-[#FAFAF9] text-stone-900 dark:bg-[#191410] dark:text-stone-100">
         {children}
       </body>
     </html>

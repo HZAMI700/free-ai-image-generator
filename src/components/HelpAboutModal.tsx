@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { X, ShieldCheck, Clock, Cpu, Sparkles, HardDrive, CheckCircle2 } from "lucide-react";
+import { X, ShieldCheck, Clock, Cpu, Sparkles, HardDrive } from "lucide-react";
 
 interface HelpAboutModalProps {
   isOpen: boolean;
@@ -42,38 +42,38 @@ export function HelpAboutModal({ isOpen, onClose }: HelpAboutModalProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative max-w-lg w-full rounded-3xl bg-white dark:bg-[#16161B] border border-black/[0.08] dark:border-white/[0.08] p-6 shadow-2xl z-10"
+          className="relative max-w-lg w-full rounded-3xl bg-white dark:bg-[#201913] border border-stone-200/90 dark:border-stone-800 p-6 shadow-2xl z-10"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-black/[0.06] dark:border-white/[0.06]">
+          <div className="flex items-center justify-between pb-4 border-b border-stone-100 dark:border-stone-800">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-xs">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-                  About Prism AI Studio
+                <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
+                  About Raphael AI Studio
                 </h3>
-                <p className="text-xs text-zinc-500">Free, no-account creative studio</p>
+                <p className="text-xs text-stone-500">Free, no-account creative studio</p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Core Principles */}
-          <div className="py-4 space-y-4 text-xs text-zinc-600 dark:text-zinc-300">
+          <div className="py-4 space-y-4 text-xs text-stone-600 dark:text-stone-300">
             <div className="flex items-start gap-3">
               <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
-                <strong className="text-zinc-900 dark:text-white block font-semibold">
+                <strong className="text-stone-900 dark:text-white block font-bold">
                   100% Free Forever
                 </strong>
                 <span>
@@ -87,7 +87,7 @@ export function HelpAboutModal({ isOpen, onClose }: HelpAboutModalProps) {
                 <Clock className="w-4 h-4" />
               </div>
               <div>
-                <strong className="text-zinc-900 dark:text-white block font-semibold">
+                <strong className="text-stone-900 dark:text-white block font-bold">
                   Fair Usage: 1 Image Every 3 Minutes
                 </strong>
                 <span>
@@ -97,15 +97,15 @@ export function HelpAboutModal({ isOpen, onClose }: HelpAboutModalProps) {
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
                 <Cpu className="w-4 h-4" />
               </div>
               <div>
-                <strong className="text-zinc-900 dark:text-white block font-semibold">
-                  Multi-Provider Fallback Engine
+                <strong className="text-stone-900 dark:text-white block font-bold">
+                  Multi-Provider Intelligent Routing
                 </strong>
                 <span>
-                  Requests are intelligently routed across Cloudflare Workers AI, Gemini Imagen, Pollinations, AI Horde, and Hugging Face with automatic seamless failover.
+                  Requests are dynamically routed across Cloudflare Workers AI (FLUX.1-schnell & SDXL), Hugging Face, Pollinations, and AI Horde with automatic failover.
                 </span>
               </div>
             </div>
@@ -115,23 +115,23 @@ export function HelpAboutModal({ isOpen, onClose }: HelpAboutModalProps) {
                 <HardDrive className="w-4 h-4" />
               </div>
               <div>
-                <strong className="text-zinc-900 dark:text-white block font-semibold">
-                  Device Privacy (IndexedDB)
+                <strong className="text-stone-900 dark:text-white block font-bold">
+                  Local Storage Privacy (IndexedDB)
                 </strong>
                 <span>
-                  Your previous creations are saved privately on this browser's IndexedDB. We never track your personal identity or cloud-sync your history.
+                  Your previous creations are saved privately on this browser's IndexedDB. We never track your identity or sell your prompts.
                 </span>
               </div>
             </div>
           </div>
 
           {/* Footer CTA */}
-          <div className="pt-3 border-t border-black/[0.06] dark:border-white/[0.06] flex justify-end">
+          <div className="pt-3 border-t border-stone-100 dark:border-stone-800 flex justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition-colors cursor-pointer"
             >
-              Got it
+              Close
             </button>
           </div>
         </motion.div>

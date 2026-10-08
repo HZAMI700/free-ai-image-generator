@@ -238,14 +238,17 @@ export class CloudflareProvider implements ImageProvider {
 
     // 2. Neuron Quota Check
     this.checkDailyNeuronReset();
-    const spec = this.getModelSpec(config.model);
+    const activeModel = (options.preferredModel && options.preferredModel.startsWith("@cf/"))
+      ? options.preferredModel
+      : config.model;
+    const spec = this.getModelSpec(activeModel);
     if (config.dailyNeuronLimit > 0 && this.neuronsUsedToday >= config.dailyNeuronLimit) {
       return {
         success: false,
         errorCode: "QUOTA_EXHAUSTED",
         error: `Daily Cloudflare neuron limit reached (${this.neuronsUsedToday}/${config.dailyNeuronLimit} neurons).`,
         provider: this.name,
-        modelUsed: config.model,
+        modelUsed: activeModel,
         latencyMs: Date.now() - startTime,
         costEstimated: 0,
       };
@@ -253,7 +256,7 @@ export class CloudflareProvider implements ImageProvider {
 
     // 3. Prepare Payload
     const payload = this.buildPayload(spec, options);
-    const endpoint = `https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/run/${config.model}`;
+    const endpoint = `https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/run/${activeModel}`;
 
     // 4. Execute REST API with timeout controller
     const controller = new AbortController();

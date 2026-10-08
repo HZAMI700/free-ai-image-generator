@@ -36,19 +36,19 @@ const GALLERY_ITEMS = [
 
 export function InspirationGallery({ onSelectPrompt }: InspirationGalleryProps) {
   return (
-    <div className="w-full max-w-5xl mx-auto my-16 px-4">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+    <section className="w-full max-w-[1128px] mx-auto py-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 gap-2">
         <div>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 mb-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Community Showcase</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
-            Created with Prism AI
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
+            Created with Raphael AI
           </h2>
         </div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-xs">
-          Click any prompt below to automatically load it into your prompt box.
+        <p className="text-xs text-stone-500 dark:text-stone-400">
+          Click any prompt below to automatically populate the composer
         </p>
       </div>
 
@@ -57,17 +57,17 @@ export function InspirationGallery({ onSelectPrompt }: InspirationGalleryProps) 
           <div
             key={idx}
             onClick={() => onSelectPrompt(item.prompt)}
-            className="group relative rounded-2xl overflow-hidden glass-card border border-zinc-200/60 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 shadow-sm hover:shadow-xl hover:border-indigo-500/40 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+            className="group relative rounded-2xl overflow-hidden border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-[#201913] shadow-2xs hover:shadow-lg hover:border-amber-500/40 transition-all duration-300 cursor-pointer flex flex-col justify-between"
           >
             {/* Visual Cover */}
-            <div className="h-44 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 relative">
+            <div className="h-44 w-full overflow-hidden bg-stone-100 dark:bg-stone-900 relative">
               <img
                 src={item.image}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
-              <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-medium text-white">
+              <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-semibold text-white">
                 {item.style}
               </div>
             </div>
@@ -75,23 +75,23 @@ export function InspirationGallery({ onSelectPrompt }: InspirationGalleryProps) 
             {/* Prompt preview */}
             <div className="p-3.5 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 mb-1 flex items-center justify-between">
+                <h3 className="text-xs font-bold text-stone-900 dark:text-stone-100 mb-1 flex items-center justify-between">
                   <span>{item.title}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-indigo-500 transition-colors" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-amber-600 transition-colors" />
                 </h3>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                <p className="text-[11px] text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed">
                   "{item.prompt}"
                 </p>
               </div>
 
-              <div className="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">
-                <span>Use prompt</span>
+              <div className="mt-3 pt-2 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-[11px] text-amber-700 dark:text-amber-400 font-semibold">
+                <span>Use this prompt</span>
                 <span>→</span>
               </div>
             </div>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

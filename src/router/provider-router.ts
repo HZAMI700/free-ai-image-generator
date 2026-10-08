@@ -81,6 +81,12 @@ export class ProviderRouter {
       reasons.push("Primary official provider");
     }
 
+    // User explicitly selected provider
+    if (options.preferredProvider && provider.name.toLowerCase() === options.preferredProvider.toLowerCase()) {
+      score += 1500;
+      reasons.push("User selected provider");
+    }
+
     // 3. Quota Status
     if (quota.isExhausted) {
       score -= 1000;

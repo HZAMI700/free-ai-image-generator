@@ -2,38 +2,42 @@
 
 @layer base {
   :root {
-    --background: #FAFAFC;
+    --background: #FAFAF9;
     --foreground: #18181B;
     --sidebar-bg: #FFFFFF;
     --sidebar-border: rgba(0, 0, 0, 0.08);
-    --workspace-bg: #F4F4F7;
+    --workspace-bg: #F5F5F4;
     --card: #FFFFFF;
     --card-foreground: #18181B;
     --border: rgba(0, 0, 0, 0.08);
-    --accent: #4F46E5;
+    --primary: #E07A28;
+    --primary-hover: #CC6618;
+    --accent: #E07A28;
     --accent-foreground: #FFFFFF;
     --muted: #71717A;
     --muted-foreground: #71717A;
-    --glass-bg: rgba(255, 255, 255, 0.82);
-    --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-bg: rgba(255, 255, 255, 0.88);
+    --glass-border: rgba(0, 0, 0, 0.06);
     --glass-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05), 0 0 1px 1px rgba(0, 0, 0, 0.05);
   }
 
   .dark {
-    --background: #09090C;
-    --foreground: #EDEDF0;
-    --sidebar-bg: #111115;
+    --background: #191410;
+    --foreground: #F5EFEB;
+    --sidebar-bg: #211B16;
     --sidebar-border: rgba(255, 255, 255, 0.08);
-    --workspace-bg: #0D0D12;
-    --card: #16161B;
-    --card-foreground: #EDEDF0;
+    --workspace-bg: #140F0C;
+    --card: #241C16;
+    --card-foreground: #F5EFEB;
     --border: rgba(255, 255, 255, 0.08);
-    --accent: #6366F1;
+    --primary: #F0943A;
+    --primary-hover: #E07A28;
+    --accent: #F0943A;
     --accent-foreground: #FFFFFF;
-    --muted: #A1A1AA;
-    --muted-foreground: #A1A1AA;
-    --glass-bg: rgba(22, 22, 28, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --muted: #A19992;
+    --muted-foreground: #A19992;
+    --glass-bg: rgba(36, 28, 22, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.08);
     --glass-shadow: 0 15px 40px -15px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.06);
   }
 }
@@ -62,10 +66,10 @@ body {
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .dark .glass-pill {
@@ -124,7 +128,7 @@ body {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.15) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   background-size: 200% 100%;

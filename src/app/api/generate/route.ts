@@ -71,12 +71,41 @@ export async function POST(req: NextRequest) {
       finalPrompt = `${prompt}, ${style} style, high quality, 8k resolution, detailed`;
     }
 
+    // Parse user requested AI model
+    const requestedModel = typeof body.model === "string" ? body.model.trim() : undefined;
+    let preferredProvider: string | undefined = undefined;
+    let preferredModel: string | undefined = undefined;
+
+    if (requestedModel && requestedModel !== "auto-router") {
+      if (requestedModel === "cloudflare-flux") {
+        preferredProvider = "cloudflare";
+        preferredModel = "@cf/black-forest-labs/flux-1-schnell";
+      } else if (requestedModel === "cloudflare-sdxl" || requestedModel === "sdxl-lightning") {
+        preferredProvider = "cloudflare";
+        preferredModel = "@cf/bytedance/stable-diffusion-xl-lightning";
+      } else if (requestedModel === "cloudflare-sdxl-base") {
+        preferredProvider = "cloudflare";
+        preferredModel = "@cf/stabilityai/stable-diffusion-xl-base-1.0";
+      } else if (requestedModel === "huggingface-flux" || requestedModel === "flux-schnell") {
+        preferredProvider = "huggingface";
+        preferredModel = "black-forest-labs/FLUX.1-schnell";
+      } else if (requestedModel === "pollinations" || requestedModel === "pollinations-flux") {
+        preferredProvider = "pollinations";
+      } else if (requestedModel === "aihorde") {
+        preferredProvider = "aihorde";
+      } else if (requestedModel === "gemini" || requestedModel === "imagen-3") {
+        preferredProvider = "gemini";
+      }
+    }
+
     const generationOptions: ImageGenerationOptions = {
       prompt: finalPrompt,
       negativePrompt,
       aspectRatio,
       quality,
       seed: typeof body.seed === "number" ? body.seed : undefined,
+      preferredProvider,
+      preferredModel,
     };
 
     // 3. Multi-Provider Router Execution with Dynamic Fallback

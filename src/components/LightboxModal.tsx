@@ -28,7 +28,7 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
     const link = document.createElement("a");
     link.href = item.imageBase64 || item.imageUrl;
     const slug = item.prompt.slice(0, 30).replace(/[^a-z0-9]/gi, "-").toLowerCase();
-    link.download = `prism-ai-${slug || "image"}.png`;
+    link.download = `raphael-ai-${slug || "image"}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -62,12 +62,12 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
           animate={{ opacity: 1, scale: 1 }}
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative max-w-5xl w-full max-h-[92vh] flex flex-col rounded-3xl overflow-hidden bg-zinc-950 border border-white/10 shadow-2xl z-10"
+          className="relative max-w-5xl w-full max-h-[92vh] flex flex-col rounded-3xl overflow-hidden bg-stone-950 border border-white/10 shadow-2xl z-10"
         >
           {/* Header Controls */}
-          <div className="flex items-center justify-between p-4 bg-zinc-900/80 border-b border-zinc-800 backdrop-blur-md">
-            <div className="flex items-center gap-2 text-xs text-zinc-400">
-              <span className="font-medium text-white">{item.providerUsed.toUpperCase()}</span>
+          <div className="flex items-center justify-between p-4 bg-stone-900/80 border-b border-stone-800 backdrop-blur-md">
+            <div className="flex items-center gap-2 text-xs text-stone-400">
+              <span className="font-bold text-white uppercase">{item.modelUsed || item.providerUsed}</span>
               <span>•</span>
               <span>{item.aspectRatio}</span>
               {item.style && (
@@ -81,21 +81,21 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyPrompt}
-                className="p-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors"
+                className="p-2 rounded-xl text-stone-300 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
                 title="Copy prompt"
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
               </button>
               <button
                 onClick={handleDownload}
-                className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download</span>
               </button>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-stone-400 hover:text-white hover:bg-stone-800 transition-colors cursor-pointer"
                 title="Close (Esc)"
               >
                 <X className="w-5 h-5" />
@@ -104,7 +104,7 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
           </div>
 
           {/* Centered Image */}
-          <div className="relative flex-1 min-h-[300px] flex items-center justify-center p-2 sm:p-6 bg-zinc-950 overflow-auto">
+          <div className="relative flex-1 min-h-[300px] flex items-center justify-center p-2 sm:p-6 bg-stone-950 overflow-auto">
             <img
               src={item.imageBase64 || item.imageUrl}
               alt={item.prompt}
@@ -113,7 +113,7 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
           </div>
 
           {/* Prompt Subtitle */}
-          <div className="p-4 bg-zinc-900/90 border-t border-zinc-800 text-xs text-zinc-300">
+          <div className="p-4 bg-stone-900/90 border-t border-stone-800 text-xs text-stone-300">
             <p className="line-clamp-2">"{item.prompt}"</p>
           </div>
         </motion.div>

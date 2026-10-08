@@ -27,7 +27,9 @@ export class HuggingFaceProvider implements ImageProvider {
   async generateImage(options: ImageGenerationOptions): Promise<ProviderResponse> {
     const startTime = Date.now();
     const token = this.apiToken;
-    const model = this.model;
+    const model = (options.preferredModel && !options.preferredModel.startsWith("@cf/"))
+      ? options.preferredModel
+      : this.model;
 
     if (!token) {
       return {

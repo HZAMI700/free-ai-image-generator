@@ -10,6 +10,8 @@ export interface ImageGenerationOptions {
   quality?: "standard" | "hd";
   seed?: number;
   steps?: number;
+  preferredModel?: string;
+  preferredProvider?: string;
 }
 
 export interface ProviderResponse {
