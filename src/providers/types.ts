@@ -23,6 +23,7 @@ export interface ProviderResponse {
   costEstimated: number; // in USD
   quotaUsed?: number; // e.g. Neurons or credits
   error?: string;
+  errorCode?: string;
   metadata?: Record<string, unknown>;
 }
 

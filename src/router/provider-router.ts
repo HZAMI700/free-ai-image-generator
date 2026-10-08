@@ -58,20 +58,27 @@ export class ProviderRouter {
     const reasons: string[] = [];
 
     // 1. Health & Availability (Heaviest filter)
-    if (!isHealthy) {
-      score -= 500;
-      reasons.push("Unhealthy / degraded");
+    const status = await provider.getStatus();
+    if (!isHealthy || !status.isHealthy) {
+      score -= 800;
+      reasons.push("Unhealthy or unconfigured");
     } else {
       score += 150;
     }
 
-    // 2. Free Tier Priority
+    // 2. Free Tier & Cloudflare Primary Priority
     if (provider.isFree) {
       score += 300;
       reasons.push("Free provider");
     } else {
       score -= 100; // Paid provider lower priority
       reasons.push(`Paid ($${estimatedCost}/img)`);
+    }
+
+    // Official Cloudflare Workers AI priority boost when configured
+    if (provider.name === "cloudflare" && status.isHealthy) {
+      score += 200;
+      reasons.push("Primary official provider");
     }
 
     // 3. Quota Status

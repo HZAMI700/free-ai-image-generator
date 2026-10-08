@@ -12,7 +12,12 @@ export async function POST(req: NextRequest) {
 
     if (!body || typeof body.prompt !== "string" || !body.prompt.trim()) {
       return NextResponse.json(
-        { error: "Please enter a description for the image you want to create." },
+        {
+          success: false,
+          code: "INVALID_PROMPT",
+          message: "Please enter a description for the image you want to create.",
+          error: "Please enter a description for the image you want to create.",
+        },
         { status: 400 }
       );
     }
@@ -20,7 +25,12 @@ export async function POST(req: NextRequest) {
     const prompt = body.prompt.trim();
     if (prompt.length > 1000) {
       return NextResponse.json(
-        { error: "Prompt exceeds maximum allowed length of 1000 characters." },
+        {
+          success: false,
+          code: "INVALID_PROMPT",
+          message: "Prompt exceeds maximum allowed length of 1000 characters.",
+          error: "Prompt exceeds maximum allowed length of 1000 characters.",
+        },
         { status: 400 }
       );
     }
@@ -43,6 +53,8 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json(
         {
+          success: false,
+          code: "RATE_LIMITED",
           error: "Rate limit active",
           message: `Next image available in ${formatted}`,
           remainingSeconds: cooldownStatus.remainingSeconds,
@@ -74,7 +86,10 @@ export async function POST(req: NextRequest) {
       // User-friendly shielded error message
       return NextResponse.json(
         {
-          error: response.error || "That generation service is busy right now. Please try again shortly.",
+          success: false,
+          code: response.errorCode || "PROVIDER_TEMPORARILY_UNAVAILABLE",
+          message: response.error || "Image generation is temporarily busy. Please try again shortly.",
+          error: response.error || "Image generation is temporarily busy. Please try again shortly.",
           details: "All available provider pipelines were attempted.",
         },
         { status: 503 }
@@ -131,6 +146,9 @@ export async function POST(req: NextRequest) {
     console.error("[API Generate Error]:", err);
     return NextResponse.json(
       {
+        success: false,
+        code: "INTERNAL_ERROR",
+        message: "Image generation is temporarily busy. Please try again shortly.",
         error: "Image generation is temporarily busy. Please try again shortly.",
       },
       { status: 500 }
