@@ -28,6 +28,8 @@ export class PollinationsProvider implements ImageProvider {
         return { width: 576, height: 1024 };
       case "4:3":
         return { width: 1024, height: 768 };
+      case "3:4":
+        return { width: 768, height: 1024 };
       case "3:2":
         return { width: 1080, height: 720 };
       case "1:1":

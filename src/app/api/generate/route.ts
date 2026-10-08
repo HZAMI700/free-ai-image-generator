@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     const negativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim().slice(0, 500) : undefined;
     const style = typeof body.style === "string" ? body.style : undefined;
-    const validAspectRatios: AspectRatio[] = ["1:1", "16:9", "9:16", "4:3", "3:2"];
+    const validAspectRatios: AspectRatio[] = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2"];
     const aspectRatio: AspectRatio = validAspectRatios.includes(body.aspectRatio) ? body.aspectRatio : "1:1";
     const quality = body.quality === "hd" ? "hd" : "standard";
     const deviceId = typeof body.deviceId === "string" ? body.deviceId : req.headers.get("x-device-id") || undefined;

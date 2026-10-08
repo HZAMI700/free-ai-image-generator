@@ -2,17 +2,22 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Sparkles, Shield, Clock, Zap, AlertCircle } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { GeneratorCard } from "@/components/GeneratorCard";
-import { CountdownCard } from "@/components/CountdownCard";
-import { ImageResult } from "@/components/ImageResult";
+import { Sparkles, Clock, AlertCircle } from "lucide-react";
+
+import { StudioHeader } from "@/components/StudioHeader";
+import { StudioSidebar, StudioToolId } from "@/components/StudioSidebar";
+import { GenerationCanvas } from "@/components/GenerationCanvas";
+import { PromptControlPanel } from "@/components/PromptControlPanel";
+import { RecentCreationsGrid } from "@/components/RecentCreationsGrid";
 import { LightboxModal } from "@/components/LightboxModal";
 import { HistoryDrawer } from "@/components/HistoryDrawer";
+import { HelpAboutModal } from "@/components/HelpAboutModal";
+import { ToolWorkspaces } from "@/components/ToolWorkspaces";
 import { InspirationGallery } from "@/components/InspirationGallery";
 import { FeatureSteps } from "@/components/FeatureSteps";
 import { Footer } from "@/components/Footer";
-import { AspectRatio } from "@/providers/types";
+
+import { AspectRatio } from "@/lib/constants";
 import {
   GenerationHistoryItem,
   getHistoryItems,
@@ -22,8 +27,12 @@ import {
 } from "@/lib/db";
 import { getOrCreateDeviceId } from "@/lib/device";
 
-export default function HomePage() {
+export default function VheerStyleStudioPage() {
   const shouldReduceMotion = useReducedMotion();
+
+  // Active Tool & Navigation Tab
+  const [activeTool, setActiveTool] = useState<StudioToolId>("text-to-image");
+  const [activeNavTab, setActiveNavTab] = useState<"create" | "tools" | "explore">("create");
 
   // Generator State
   const [promptValue, setPromptValue] = useState("");
@@ -31,7 +40,7 @@ export default function HomePage() {
   const [generationStatusText, setGenerationStatusText] = useState("");
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  // Rate Limiter / Cooldown State
+  // Server-Side Rate Limiter & Cooldown State (Strict 3-minute lock)
   const [inCooldown, setInCooldown] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
@@ -40,10 +49,12 @@ export default function HomePage() {
   const [historyItems, setHistoryItems] = useState<GenerationHistoryItem[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [lightboxItem, setLightboxItem] = useState<GenerationHistoryItem | null>(null);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
-  const resultRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const exploreRef = useRef<HTMLDivElement>(null);
 
-  // 1. Sync Cooldown status with server on mount and window focus
+  // 1. Sync Cooldown status with server on mount & window focus
   const syncCooldown = async () => {
     try {
       const deviceId = getOrCreateDeviceId();
@@ -66,11 +77,32 @@ export default function HomePage() {
     }
   };
 
+  // Cooldown local tick-down timer
+  useEffect(() => {
+    if (!inCooldown || cooldownSeconds <= 0) return;
+
+    const interval = setInterval(() => {
+      setCooldownSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setInCooldown(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [inCooldown, cooldownSeconds]);
+
   // 2. Load IndexedDB history
   const loadHistory = async () => {
     try {
       const items = await getHistoryItems();
       setHistoryItems(items);
+      if (items.length > 0 && !currentResult) {
+        setCurrentResult(items[0]);
+      }
     } catch (e) {
       console.warn("Failed to load local history", e);
     }
@@ -80,14 +112,12 @@ export default function HomePage() {
     syncCooldown();
     loadHistory();
 
-    const handleFocus = () => {
-      syncCooldown();
-    };
+    const handleFocus = () => syncCooldown();
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
-  // 3. Generation Execution
+  // 3. Generation Trigger
   const handleGenerate = async (options: {
     prompt: string;
     negativePrompt?: string;
@@ -95,6 +125,7 @@ export default function HomePage() {
     style?: string;
     quality?: "standard" | "hd";
     seed?: number;
+    model?: string;
   }) => {
     setIsGenerating(true);
     setGenerationStatusText("Creating your image...");
@@ -102,14 +133,14 @@ export default function HomePage() {
 
     const deviceId = getOrCreateDeviceId();
 
-    // Friendly progressive status updates
+    // Smooth status transitions
     const timer1 = setTimeout(() => {
       setGenerationStatusText("Routing to optimal AI cluster...");
-    }, 2500);
+    }, 2200);
 
     const timer2 = setTimeout(() => {
       setGenerationStatusText("Rendering neural pixels...");
-    }, 6000);
+    }, 5500);
 
     try {
       const res = await fetch("/api/generate", {
@@ -139,15 +170,15 @@ export default function HomePage() {
       }
 
       if (!res.ok || !data.success) {
-        // Shielded user-friendly error
+        // Friendly shielded error
         setGlobalError(
-          data.error || "That generation service is busy right now. Please try again shortly."
+          data.error || "That generation service is busy right now. We're switching to another one."
         );
         setIsGenerating(false);
         return;
       }
 
-      // Success!
+      // Success
       setGenerationStatusText("Image generated.");
 
       const newItem: GenerationHistoryItem = {
@@ -168,32 +199,30 @@ export default function HomePage() {
       await saveHistoryItem(newItem);
       loadHistory();
 
-      // Activate 3-minute cooldown from server confirmation
+      // Enforce 3-minute cooldown from server
       if (data.cooldown) {
         setInCooldown(true);
         setCooldownSeconds(data.cooldown.remainingSeconds || 180);
       }
-
-      // Smooth scroll to result
-      setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 150);
-    } catch (err: unknown) {
+    } catch {
       clearTimeout(timer1);
       clearTimeout(timer2);
-      setGlobalError("Network interruption. Please check your connection and try again.");
+      setGlobalError("Connection interrupted. Please verify your connection and try again.");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleCooldownExpire = () => {
-    setInCooldown(false);
-    setCooldownSeconds(0);
-    setGlobalError(null);
+  const handleRegenerate = () => {
+    if (inCooldown || !currentResult) return;
+    handleGenerate({
+      prompt: currentResult.prompt,
+      aspectRatio: (currentResult.aspectRatio as AspectRatio) || "1:1",
+      style: currentResult.style,
+    });
   };
 
-  const handleDeleteHistory = async (id: string) => {
+  const handleDeleteHistoryItem = async (id: string) => {
     await deleteHistoryItem(id);
     loadHistory();
     if (currentResult?.id === id) {
@@ -202,7 +231,7 @@ export default function HomePage() {
   };
 
   const handleClearAllHistory = async () => {
-    if (confirm("Clear all locally saved images on this browser?")) {
+    if (confirm("Clear all locally saved creations on this device?")) {
       await clearAllHistory();
       setHistoryItems([]);
       setCurrentResult(null);
@@ -212,131 +241,179 @@ export default function HomePage() {
   const handleSelectFromHistory = (item: GenerationHistoryItem) => {
     setCurrentResult(item);
     setPromptValue(item.prompt);
-    setIsHistoryOpen(false);
-    setTimeout(() => {
-      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    setActiveTool("text-to-image");
   };
 
+  const handleSelectPromptSuggestion = (suggestion: string) => {
+    setPromptValue(suggestion);
+    setActiveTool("text-to-image");
+  };
+
+  const handleNavTabChange = (tab: "create" | "tools" | "explore") => {
+    setActiveNavTab(tab);
+    if (tab === "create") {
+      setActiveTool("text-to-image");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (tab === "tools") {
+      setActiveTool("image-to-image");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (tab === "explore") {
+      exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const minutes = Math.floor(cooldownSeconds / 60);
+  const seconds = cooldownSeconds % 60;
+  const formattedCooldown = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAFC] dark:bg-[#09090B] text-zinc-900 dark:text-zinc-100 selection:bg-indigo-500/20 selection:text-indigo-600 transition-colors duration-300">
-      {/* Navigation */}
-      <Navbar
+    <div className="min-h-screen flex flex-col bg-[#FAFAFC] dark:bg-[#09090C] text-zinc-900 dark:text-zinc-100 transition-colors duration-200">
+      {/* Vheer-style Glass Header */}
+      <StudioHeader
         onOpenHistory={() => setIsHistoryOpen(true)}
         historyCount={historyItems.length}
+        inCooldown={inCooldown}
+        cooldownSeconds={cooldownSeconds}
+        onOpenHelp={() => setIsHelpOpen(true)}
+        activeNavTab={activeNavTab}
+        setActiveNavTab={handleNavTabChange}
       />
 
-      {/* Main Content */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
-        {/* Hero Section */}
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-          {/* Badge */}
-          <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-5"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Multi-Cluster AI • 100% Free SaaS</span>
-          </motion.div>
-
-          {/* Heading */}
-          <motion.h1
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white leading-[1.1]"
-          >
-            Create anything with AI.
-          </motion.h1>
-
-          {/* Subtitle with core guarantees */}
-          <motion.p
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mt-4 leading-relaxed font-normal"
-          >
-            Free AI image generation. No account required.
-            <br className="hidden sm:inline" />
-            <span className="text-zinc-400 dark:text-zinc-500 text-sm sm:text-base">
-              {" "}No subscription. Generate again every 3 minutes.
-            </span>
-          </motion.p>
-        </div>
-
-        {/* Cooldown Timer (When active) */}
-        {inCooldown && (
-          <CountdownCard
-            remainingSeconds={cooldownSeconds}
-            onExpire={handleCooldownExpire}
-          />
-        )}
-
-        {/* Global Error Banner (User-friendly) */}
-        {globalError && !inCooldown && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-xl mx-auto my-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-200 text-xs font-medium flex items-center gap-2.5 shadow-sm"
-          >
-            <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-            <p>{globalError}</p>
-          </motion.div>
-        )}
-
-        {/* Primary Generator Card */}
-        <GeneratorCard
-          onGenerate={handleGenerate}
-          isGenerating={isGenerating}
-          generationStatusText={generationStatusText}
-          inCooldown={inCooldown}
-          cooldownSeconds={cooldownSeconds}
-          promptValue={promptValue}
-          setPromptValue={setPromptValue}
-        />
-
-        {/* Generated Image Result Area */}
-        <div ref={resultRef}>
-          {currentResult && (
-            <ImageResult
-              item={currentResult}
-              onGenerateAgain={() => {
-                if (!inCooldown) {
-                  handleGenerate({
-                    prompt: currentResult.prompt,
-                    aspectRatio: currentResult.aspectRatio as AspectRatio,
-                    style: currentResult.style,
-                  });
-                }
-              }}
-              onClear={() => setCurrentResult(null)}
-              onOpenLightbox={(item) => setLightboxItem(item)}
-              canGenerateAgain={!inCooldown}
-            />
-          )}
-        </div>
-
-        {/* Inspiration Gallery */}
-        <InspirationGallery
-          onSelectPrompt={(p) => {
-            setPromptValue(p);
-            window.scrollTo({ top: 120, behavior: "smooth" });
+      {/* Main Studio Body: Sidebar + Workspace */}
+      <div className="flex-1 flex flex-col lg:flex-row max-w-[1600px] w-full mx-auto">
+        {/* Slim Left Sidebar */}
+        <StudioSidebar
+          activeTool={activeTool}
+          onSelectTool={(tool) => {
+            setActiveTool(tool);
+            if (tool === "text-to-image") {
+              setActiveNavTab("create");
+            } else {
+              setActiveNavTab("tools");
+            }
           }}
+          onOpenHistory={() => setIsHistoryOpen(true)}
         />
 
-        {/* 3 Step Workflow */}
-        <FeatureSteps />
-      </main>
+        {/* Central Creative Workspace Area */}
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 flex flex-col justify-between overflow-x-hidden min-w-0">
+          <div className="w-full space-y-4">
+            {/* Top Workspace Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 font-sans">
+                  {activeTool === "text-to-image"
+                    ? "Create an image"
+                    : activeTool.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+                  {activeTool === "text-to-image"
+                    ? "Describe your idea and bring it to life with multi-provider AI."
+                    : "Creative studio tools powered by high-speed neural models."}
+                </p>
+              </div>
 
-      {/* History Drawer */}
+              {/* Cooldown Status Badge */}
+              {inCooldown && (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-700 dark:text-amber-300">
+                  <Clock className="w-3.5 h-3.5 text-amber-500 animate-spin" style={{ animationDuration: "3s" }} />
+                  <span>
+                    Next image available in{" "}
+                    <strong className="font-mono text-amber-800 dark:text-amber-200">
+                      {formattedCooldown}
+                    </strong>
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Error Banner if any */}
+            {globalError && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2.5 font-medium"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <span>{globalError}</span>
+              </motion.div>
+            )}
+
+            {/* WORKSPACE VIEW: TEXT TO IMAGE OR TOOL WORKSPACE */}
+            {activeTool === "text-to-image" ? (
+              <div ref={canvasRef} className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
+                {/* Large Canvas (Left 7 cols on desktop, Top on mobile) */}
+                <div className="lg:col-span-7 xl:col-span-8 order-1">
+                  <GenerationCanvas
+                    currentResult={currentResult}
+                    isGenerating={isGenerating}
+                    generationStatusText={generationStatusText}
+                    onOpenLightbox={(item) => setLightboxItem(item)}
+                    onRegenerate={handleRegenerate}
+                    canRegenerate={!inCooldown}
+                    onSelectPromptSuggestion={handleSelectPromptSuggestion}
+                  />
+                </div>
+
+                {/* Prompt + Controls Panel (Right 5 cols on desktop, Bottom on mobile) */}
+                <div className="lg:col-span-5 xl:col-span-4 order-2">
+                  <PromptControlPanel
+                    promptValue={promptValue}
+                    setPromptValue={setPromptValue}
+                    onGenerate={handleGenerate}
+                    isGenerating={isGenerating}
+                    inCooldown={inCooldown}
+                    cooldownSeconds={cooldownSeconds}
+                  />
+                </div>
+              </div>
+            ) : (
+              <ToolWorkspaces
+                activeTool={activeTool}
+                onSwitchToTextToImageWithPrompt={(p) => {
+                  setPromptValue(p);
+                  setActiveTool("text-to-image");
+                }}
+              />
+            )}
+
+            {/* Recent Creations Masonry / Grid */}
+            <RecentCreationsGrid
+              items={historyItems}
+              onSelect={(item) => {
+                setCurrentResult(item);
+                setPromptValue(item.prompt);
+                setActiveTool("text-to-image");
+                canvasRef.current?.scrollIntoView({ behavior: "smooth" });
+              }}
+              onOpenLightbox={(item) => setLightboxItem(item)}
+              onDelete={handleDeleteHistoryItem}
+            />
+
+            {/* Explore / Inspiration Showcase */}
+            <div ref={exploreRef}>
+              <InspirationGallery
+                onSelectPrompt={(p) => {
+                  setPromptValue(p);
+                  setActiveTool("text-to-image");
+                  canvasRef.current?.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
+            </div>
+
+            {/* Workflow Steps */}
+            <FeatureSteps />
+          </div>
+        </main>
+      </div>
+
+      {/* History Slide-Out Drawer */}
       <HistoryDrawer
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         items={historyItems}
         onSelect={handleSelectFromHistory}
-        onDelete={handleDeleteHistory}
+        onDelete={handleDeleteHistoryItem}
         onClearAll={handleClearAllHistory}
       />
 
@@ -346,7 +423,13 @@ export default function HomePage() {
         onClose={() => setLightboxItem(null)}
       />
 
-      {/* Footer */}
+      {/* Help / About Modal */}
+      <HelpAboutModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+      />
+
+      {/* Minimal Studio Footer */}
       <Footer />
     </div>
   );
