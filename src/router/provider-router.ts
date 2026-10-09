@@ -1,4 +1,5 @@
 import { ImageProvider, ImageGenerationOptions, ProviderResponse } from "../providers/types";
+import { RunwareProvider } from "../providers/runware";
 import { CloudflareProvider } from "../providers/cloudflare";
 import { GeminiProvider } from "../providers/gemini";
 import { PollinationsProvider } from "../providers/pollinations";
@@ -24,8 +25,9 @@ export class ProviderRouter {
   private providers: ImageProvider[] = [];
 
   constructor() {
-    // Register all providers in modular architecture
+    // Register all providers in modular architecture with Runware prioritized
     this.providers = [
+      new RunwareProvider(),
       new CloudflareProvider(),
       new GeminiProvider(),
       new PollinationsProvider(),
@@ -75,10 +77,16 @@ export class ProviderRouter {
       reasons.push(`Paid ($${estimatedCost}/img)`);
     }
 
+    // Runware AI primary priority boost when configured
+    if (provider.name === "runware" && status.isHealthy) {
+      score += 400;
+      reasons.push("Primary Runware engine");
+    }
+
     // Official Cloudflare Workers AI priority boost when configured
     if (provider.name === "cloudflare" && status.isHealthy) {
       score += 200;
-      reasons.push("Primary official provider");
+      reasons.push("Backup official provider");
     }
 
     // User explicitly selected provider

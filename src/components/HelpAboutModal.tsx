@@ -102,10 +102,10 @@ export function HelpAboutModal({ isOpen, onClose }: HelpAboutModalProps) {
               </div>
               <div>
                 <strong className="text-stone-900 dark:text-white block font-bold">
-                  Multi-Provider Intelligent Routing
+                  High-Speed Runware AI Inference
                 </strong>
                 <span>
-                  Requests are dynamically routed across Cloudflare Workers AI (FLUX.1-schnell & SDXL), Hugging Face, and AI Horde with automatic failover.
+                  Generations are powered by Runware AI with access to FLUX.1 [schnell], FLUX.1 [dev], Juggernaut Pro & Lightning, Devlish PhotoRealism SDXL, Animagine XL, and DreamShaper.
                 </span>
               </div>
             </div>

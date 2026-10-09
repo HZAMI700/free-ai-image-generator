@@ -53,61 +53,91 @@ export const AVAILABLE_MODELS: ModelOption[] = [
     id: "auto-router",
     name: "Auto Smart Router",
     badge: "Recommended",
-    description: "Intelligently routes to the highest-scoring live AI cluster with auto-fallback",
-    provider: "multi-provider",
-    speed: "Instant (~2s)",
+    description: "Intelligently routes to the fastest live Runware cluster with auto-fallback",
+    provider: "runware",
+    speed: "Instant (~1.8s)",
     quality: "Ultra HD",
     icon: "✨",
   },
   {
-    id: "cloudflare-flux",
-    name: "Cloudflare FLUX.1-schnell",
-    badge: "Official Fast",
-    description: "Black Forest Labs flow transformer via Cloudflare Workers AI edge",
-    provider: "cloudflare",
-    speed: "~2.2s",
+    id: "runware:100@1",
+    name: "FLUX.1 [schnell]",
+    badge: "Ultra Fast",
+    description: "Black Forest Labs next-gen 12B flow transformer with photorealistic fidelity",
+    provider: "runware",
+    speed: "~1.9s",
     quality: "Ultra HD",
     icon: "⚡",
   },
   {
-    id: "cloudflare-sdxl",
-    name: "Cloudflare SDXL Lightning",
-    badge: "1024px High-Res",
-    description: "ByteDance accelerated 1024px photorealistic rendering via Cloudflare Workers AI",
-    provider: "cloudflare",
+    id: "runware:101@1",
+    name: "FLUX.1 [dev]",
+    badge: "Studio Pro",
+    description: "Full 28-step flow transformer open weights for maximum compositional nuance",
+    provider: "runware",
+    speed: "~3.8s",
+    quality: "Photoreal+",
+    icon: "💎",
+  },
+  {
+    id: "rundiffusion:110@101",
+    name: "Juggernaut Lightning Flux",
+    badge: "Rapid Realism",
+    description: "Accelerated photorealistic rendering tuned by RunDiffusion for instantaneous results",
+    provider: "runware",
+    speed: "~1.5s",
+    quality: "Hyperreal",
+    icon: "🔥",
+  },
+  {
+    id: "rundiffusion:130@100",
+    name: "Juggernaut Pro Flux",
+    badge: "Master Photoreal",
+    description: "State-of-the-art cinematic lighting, skin textures, and architectural precision",
+    provider: "runware",
+    speed: "~3.2s",
+    quality: "8K Cinema",
+    icon: "📸",
+  },
+  {
+    id: "civitai:156061@179087",
+    name: "Devlish PhotoRealism SDXL",
+    badge: "SDXL Precision",
+    description: "Premier SDXL checkpoint specialized for authentic human portraits and scenes",
+    provider: "runware",
+    speed: "~2.4s",
+    quality: "DSLR Crisp",
+    icon: "🎯",
+  },
+  {
+    id: "civitai:260267@293564",
+    name: "Animagine XL 3.1",
+    badge: "Anime & Manga",
+    description: "Industry-leading anime artwork generator with clean linework and studio vibrance",
+    provider: "runware",
     speed: "~2.5s",
-    quality: "1024px Crisp",
-    icon: "⚡",
+    quality: "Studio Art",
+    icon: "🌸",
   },
   {
-    id: "cloudflare-sdxl-base",
-    name: "Cloudflare SDXL Base 1.0",
-    badge: "Artistic Deep",
-    description: "Stability AI base foundation model with comprehensive artistic styling",
-    provider: "cloudflare",
-    speed: "~4.5s",
-    quality: "Fine Arts",
+    id: "civitai:25694@143906",
+    name: "EpicRealism",
+    badge: "Classic Realism",
+    description: "Acclaimed neural checkpoint for natural daylight photography and documentary realism",
+    provider: "runware",
+    speed: "~2.1s",
+    quality: "True Life",
+    icon: "🌟",
+  },
+  {
+    id: "civitai:4384@128713",
+    name: "DreamShaper 8",
+    badge: "Art & Fantasy",
+    description: "Legendary versatile checkpoint for fantasy illustrations, digital art, and concepts",
+    provider: "runware",
+    speed: "~2.0s",
+    quality: "Fine Art",
     icon: "🎨",
-  },
-  {
-    id: "huggingface-flux",
-    name: "Hugging Face FLUX.1",
-    badge: "HF Router",
-    description: "Hugging Face Inference router for FLUX.1-schnell high-fidelity generation",
-    provider: "huggingface",
-    speed: "~3-5s",
-    quality: "Photoreal",
-    icon: "🤗",
-  },
-  {
-    id: "aihorde",
-    name: "AI Horde Distributed",
-    badge: "Decentralized",
-    description: "Distributed volunteer GPU cluster with automatic queue fallback",
-    provider: "aihorde",
-    speed: "~10-30s",
-    quality: "Standard",
-    icon: "🌐",
   },
 ];
 
@@ -120,25 +150,31 @@ export function formatModelName(modelOrProvider?: string): string {
   );
   if (found) return found.name;
 
-  if (modelOrProvider.includes("flux-1-schnell") || modelOrProvider.includes("FLUX")) {
-    return "Cloudflare FLUX.1-schnell";
+  if (modelOrProvider.includes("100@1") || modelOrProvider.includes("schnell")) {
+    return "FLUX.1 [schnell]";
   }
-  if (modelOrProvider.includes("lightning")) {
-    return "Cloudflare SDXL Lightning";
+  if (modelOrProvider.includes("101@1") || modelOrProvider.includes("dev")) {
+    return "FLUX.1 [dev]";
   }
-  if (modelOrProvider.includes("sdxl-base") || modelOrProvider.includes("stable-diffusion-xl-base")) {
-    return "Cloudflare SDXL Base 1.0";
+  if (modelOrProvider.includes("110@101")) {
+    return "Juggernaut Lightning Flux";
   }
-  if (modelOrProvider.includes("huggingface")) {
-    return "Hugging Face FLUX.1";
+  if (modelOrProvider.includes("130@100")) {
+    return "Juggernaut Pro Flux";
   }
-  if (modelOrProvider.includes("aihorde")) {
-    return "AI Horde Distributed";
+  if (modelOrProvider.includes("156061")) {
+    return "Devlish PhotoRealism SDXL";
   }
-  if (modelOrProvider.includes("cloudflare")) {
-    return "Cloudflare Workers AI";
+  if (modelOrProvider.includes("260267")) {
+    return "Animagine XL 3.1";
   }
-  return modelOrProvider.replace("@cf/", "").replace("black-forest-labs/", "");
+  if (modelOrProvider.includes("25694")) {
+    return "EpicRealism";
+  }
+  if (modelOrProvider.includes("4384")) {
+    return "DreamShaper 8";
+  }
+  return modelOrProvider.replace("runware:", "").replace("rundiffusion:", "").replace("civitai:", "");
 }
 
 export const INSPIRATION_PROMPTS = [

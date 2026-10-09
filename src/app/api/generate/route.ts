@@ -77,23 +77,29 @@ export async function POST(req: NextRequest) {
     let preferredModel: string | undefined = undefined;
 
     if (requestedModel && requestedModel !== "auto-router") {
-      if (requestedModel === "cloudflare-flux") {
+      if (
+        requestedModel.startsWith("runware:") ||
+        requestedModel.startsWith("rundiffusion:") ||
+        requestedModel.startsWith("civitai:")
+      ) {
+        preferredProvider = "runware";
+        preferredModel = requestedModel;
+      } else if (requestedModel === "cloudflare-flux") {
         preferredProvider = "cloudflare";
         preferredModel = "@cf/black-forest-labs/flux-1-schnell";
       } else if (requestedModel === "cloudflare-sdxl" || requestedModel === "sdxl-lightning") {
         preferredProvider = "cloudflare";
         preferredModel = "@cf/bytedance/stable-diffusion-xl-lightning";
-      } else if (requestedModel === "cloudflare-sdxl-base") {
-        preferredProvider = "cloudflare";
-        preferredModel = "@cf/stabilityai/stable-diffusion-xl-base-1.0";
       } else if (requestedModel === "huggingface-flux" || requestedModel === "flux-schnell") {
         preferredProvider = "huggingface";
         preferredModel = "black-forest-labs/FLUX.1-schnell";
       } else if (requestedModel === "aihorde") {
         preferredProvider = "aihorde";
-      } else if (requestedModel === "gemini" || requestedModel === "imagen-3") {
-        preferredProvider = "gemini";
       }
+    } else {
+      // Auto smart router prioritizes Runware FLUX.1 [schnell]
+      preferredProvider = "runware";
+      preferredModel = "runware:100@1";
     }
 
     const generationOptions: ImageGenerationOptions = {

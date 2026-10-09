@@ -25,7 +25,7 @@ export function RaphaelFAQ() {
     {
       question: "Can I choose which AI model generates my image?",
       answer:
-        "Yes! You can choose between Auto Smart Router, Cloudflare Workers AI FLUX.1-schnell, Cloudflare SDXL Lightning (1024px), Cloudflare SDXL Base 1.0, Hugging Face FLUX.1, and AI Horde Distributed. If your preferred provider experiences high load, our fallback engine automatically routes to the best available backup.",
+        "Yes! You can choose between Auto Smart Router, FLUX.1 [schnell], FLUX.1 [dev], Juggernaut Lightning Flux, Juggernaut Pro Flux, Devlish PhotoRealism SDXL, Animagine XL 3.1, EpicRealism, and DreamShaper 8 powered by Runware AI. When you select a model, your generations are processed directly with that neural architecture.",
     },
     {
       question: "Do I need to create an account or provide an email?",
