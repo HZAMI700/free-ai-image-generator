@@ -45,7 +45,7 @@ Backend API (/api/generate)
  ↓
 Intelligent Provider Router (Multi-factor scoring)
  ↓
-Best Available Provider (Cloudflare / Gemini / Pollinations / AI Horde / Hugging Face / Fal / Replicate)
+Best Available Provider (Runware AI Multi-Model Cluster)
  ↓
 Image Generation & Fallback Pipeline
  ↓
@@ -62,24 +62,11 @@ Every provider implements the unified `ImageProvider` interface:
 * `estimateCost(options)`
 * `healthCheck()`
 
-1. **Cloudflare Workers AI** (`cloudflare.ts`):
-   - Configurable model (`@cf/black-forest-labs/flux-1-schnell`, `@cf/stabilityai/stable-diffusion-xl-base-1.0`, etc.)
-   - Neuron-based usage tracking according to model cost.
-2. **Google Gemini API** (`gemini.ts`):
-   - Imagen 3 generation via Google AI Studio (`imagen-3.0-generate-002`).
-3. **Pollinations AI** (`pollinations.ts`):
-   - High-speed free generation (`flux`, `turbo`).
-   - Supports optional authentication tokens and rate-limit handling.
-4. **AI Horde** (`aihorde.ts`):
-   - Free distributed community cluster.
-   - Async job creation, queue polling, queue timeout, and automatic failover if queue is too deep or slow.
-5. **Hugging Face** (`huggingface.ts`):
-   - Serverless Inference API with configurable models (`FLUX.1-schnell`, `SDXL`).
-   - Handles cold-start model loading and rate limit fallbacks.
-6. **fal.ai** (`fal.ts`):
-   - High-speed fallback provider when free providers are congested.
-7. **Replicate** (`replicate.ts`):
-   - Secondary fallback provider with prediction polling.
+1. **Runware AI** (`runware.ts`):
+   - High-performance multi-model cloud inference: FLUX.1 [schnell] (`runware:100@1`), FLUX.1 [dev] (`runware:101@1`), Juggernaut Lightning Flux (`rundiffusion:110@101`), Juggernaut Pro Flux (`rundiffusion:130@100`), Devlish PhotoRealism SDXL (`civitai:156061@179087`), Animagine XL 3.1 (`civitai:260267@293564`), EpicRealism (`civitai:25694@143906`), and DreamShaper 8 (`civitai:4384@128713`).
+   - Auto-dimension calculation adhering to multiple-of-64 hardware constraints.
+   - Built-in self-healing model fallbacks within Runware.
+
 
 ---
 

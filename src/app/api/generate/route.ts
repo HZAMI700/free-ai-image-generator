@@ -76,29 +76,18 @@ export async function POST(req: NextRequest) {
     let preferredProvider: string | undefined = undefined;
     let preferredModel: string | undefined = undefined;
 
-    if (requestedModel && requestedModel !== "auto-router") {
-      if (
-        requestedModel.startsWith("runware:") ||
+    // Strict Runware AI provider routing
+    preferredProvider = "runware";
+    if (
+      requestedModel &&
+      requestedModel !== "auto-router" &&
+      (requestedModel.startsWith("runware:") ||
         requestedModel.startsWith("rundiffusion:") ||
-        requestedModel.startsWith("civitai:")
-      ) {
-        preferredProvider = "runware";
-        preferredModel = requestedModel;
-      } else if (requestedModel === "cloudflare-flux") {
-        preferredProvider = "cloudflare";
-        preferredModel = "@cf/black-forest-labs/flux-1-schnell";
-      } else if (requestedModel === "cloudflare-sdxl" || requestedModel === "sdxl-lightning") {
-        preferredProvider = "cloudflare";
-        preferredModel = "@cf/bytedance/stable-diffusion-xl-lightning";
-      } else if (requestedModel === "huggingface-flux" || requestedModel === "flux-schnell") {
-        preferredProvider = "huggingface";
-        preferredModel = "black-forest-labs/FLUX.1-schnell";
-      } else if (requestedModel === "aihorde") {
-        preferredProvider = "aihorde";
-      }
+        requestedModel.startsWith("civitai:"))
+    ) {
+      preferredModel = requestedModel;
     } else {
-      // Auto smart router prioritizes Runware FLUX.1 [schnell]
-      preferredProvider = "runware";
+      // Default to FLUX.1 [schnell]
       preferredModel = "runware:100@1";
     }
 

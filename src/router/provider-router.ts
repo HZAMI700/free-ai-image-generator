@@ -1,12 +1,5 @@
 import { ImageProvider, ImageGenerationOptions, ProviderResponse } from "../providers/types";
 import { RunwareProvider } from "../providers/runware";
-import { CloudflareProvider } from "../providers/cloudflare";
-import { GeminiProvider } from "../providers/gemini";
-import { PollinationsProvider } from "../providers/pollinations";
-import { AIHordeProvider } from "../providers/aihorde";
-import { HuggingFaceProvider } from "../providers/huggingface";
-import { FalProvider } from "../providers/fal";
-import { ReplicateProvider } from "../providers/replicate";
 import { healthChecker } from "./health-checker";
 import { quotaManager } from "./quota-manager";
 import { fallbackManager } from "./fallback-manager";
@@ -25,16 +18,9 @@ export class ProviderRouter {
   private providers: ImageProvider[] = [];
 
   constructor() {
-    // Register all providers in modular architecture with Runware prioritized
+    // Only use Runware AI provider - no external or legacy fallbacks
     this.providers = [
       new RunwareProvider(),
-      new CloudflareProvider(),
-      new GeminiProvider(),
-      new PollinationsProvider(),
-      new AIHordeProvider(),
-      new HuggingFaceProvider(),
-      new FalProvider(),
-      new ReplicateProvider(),
     ];
   }
 
@@ -77,16 +63,10 @@ export class ProviderRouter {
       reasons.push(`Paid ($${estimatedCost}/img)`);
     }
 
-    // Runware AI primary priority boost when configured
+    // Runware AI primary engine
     if (provider.name === "runware" && status.isHealthy) {
-      score += 400;
-      reasons.push("Primary Runware engine");
-    }
-
-    // Official Cloudflare Workers AI priority boost when configured
-    if (provider.name === "cloudflare" && status.isHealthy) {
-      score += 200;
-      reasons.push("Backup official provider");
+      score += 500;
+      reasons.push("Runware AI engine");
     }
 
     // User explicitly selected provider

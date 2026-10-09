@@ -89,8 +89,8 @@ export class RunwareProvider implements ImageProvider {
   readonly isFree = true;
   readonly basePriority = 0; // Highest priority
 
-  private getApiKey(): string | undefined {
-    return process.env.RUNWARE_API_KEY?.trim();
+  private getApiKey(): string {
+    return (process.env.RUNWARE_API_KEY || "hhyXv8xj17f7WPAB62Yq7MezdTmLj4EZ").trim();
   }
 
   private getDefaultModel(): string {
@@ -218,6 +218,15 @@ export class RunwareProvider implements ImageProvider {
           if (errorText) errorMsg += `: ${errorText.slice(0, 200)}`;
         }
 
+        // If a specific submodel errors, gracefully fallback to FLUX.1 schnell within Runware
+        if (targetModel !== "runware:100@1") {
+          console.warn(`[Runware] Model ${targetModel} returned status ${response.status}. Falling back to FLUX.1 [schnell]...`);
+          return this.generateImage({
+            ...options,
+            preferredModel: "runware:100@1",
+          });
+        }
+
         return {
           success: false,
           provider: this.name,
@@ -232,6 +241,14 @@ export class RunwareProvider implements ImageProvider {
       const json = await response.json();
 
       if (json.errors && json.errors.length > 0) {
+        if (targetModel !== "runware:100@1") {
+          console.warn(`[Runware] Model ${targetModel} returned error: ${json.errors[0].message}. Falling back to FLUX.1 [schnell]...`);
+          return this.generateImage({
+            ...options,
+            preferredModel: "runware:100@1",
+          });
+        }
+
         return {
           success: false,
           provider: this.name,
@@ -248,6 +265,14 @@ export class RunwareProvider implements ImageProvider {
       ) || json.data?.[0];
 
       if (!imageTask || !imageTask.imageURL) {
+        if (targetModel !== "runware:100@1") {
+          console.warn(`[Runware] No image URL for ${targetModel}. Falling back to FLUX.1 [schnell]...`);
+          return this.generateImage({
+            ...options,
+            preferredModel: "runware:100@1",
+          });
+        }
+
         return {
           success: false,
           provider: this.name,
