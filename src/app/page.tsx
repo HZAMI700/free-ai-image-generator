@@ -304,6 +304,8 @@ export default function RaphaelAppPage() {
         <RaphaelComposer
           promptValue={promptValue}
           setPromptValue={setPromptValue}
+          selectedModelId={selectedModelId}
+          setSelectedModelId={setSelectedModelId}
           onGenerate={handleGenerate}
           isGenerating={isGenerating}
           inCooldown={inCooldown}

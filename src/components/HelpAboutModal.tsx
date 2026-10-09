@@ -105,7 +105,7 @@ export function HelpAboutModal({ isOpen, onClose }: HelpAboutModalProps) {
                   Multi-Provider Intelligent Routing
                 </strong>
                 <span>
-                  Requests are dynamically routed across Cloudflare Workers AI (FLUX.1-schnell & SDXL), Hugging Face, Pollinations, and AI Horde with automatic failover.
+                  Requests are dynamically routed across Cloudflare Workers AI (FLUX.1-schnell & SDXL), Hugging Face, and AI Horde with automatic failover.
                 </span>
               </div>
             </div>

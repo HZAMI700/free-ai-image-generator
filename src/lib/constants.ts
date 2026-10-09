@@ -100,16 +100,6 @@ export const AVAILABLE_MODELS: ModelOption[] = [
     icon: "🤗",
   },
   {
-    id: "pollinations-flux",
-    name: "Pollinations FLUX",
-    badge: "Community Free",
-    description: "Community distributed inference cluster with vibrant creative rendering",
-    provider: "pollinations",
-    speed: "~3-4s",
-    quality: "Creative",
-    icon: "🌸",
-  },
-  {
     id: "aihorde",
     name: "AI Horde Distributed",
     badge: "Decentralized",
@@ -120,6 +110,36 @@ export const AVAILABLE_MODELS: ModelOption[] = [
     icon: "🌐",
   },
 ];
+
+export function formatModelName(modelOrProvider?: string): string {
+  if (!modelOrProvider) return "AI Model";
+  const found = AVAILABLE_MODELS.find(
+    (m) =>
+      m.id === modelOrProvider ||
+      m.name.toLowerCase() === modelOrProvider.toLowerCase()
+  );
+  if (found) return found.name;
+
+  if (modelOrProvider.includes("flux-1-schnell") || modelOrProvider.includes("FLUX")) {
+    return "Cloudflare FLUX.1-schnell";
+  }
+  if (modelOrProvider.includes("lightning")) {
+    return "Cloudflare SDXL Lightning";
+  }
+  if (modelOrProvider.includes("sdxl-base") || modelOrProvider.includes("stable-diffusion-xl-base")) {
+    return "Cloudflare SDXL Base 1.0";
+  }
+  if (modelOrProvider.includes("huggingface")) {
+    return "Hugging Face FLUX.1";
+  }
+  if (modelOrProvider.includes("aihorde")) {
+    return "AI Horde Distributed";
+  }
+  if (modelOrProvider.includes("cloudflare")) {
+    return "Cloudflare Workers AI";
+  }
+  return modelOrProvider.replace("@cf/", "").replace("black-forest-labs/", "");
+}
 
 export const INSPIRATION_PROMPTS = [
   "A majestic snow leopard perched on crystalline ice peaks in the Himalayas, golden hour rim lighting, 8k documentary style",

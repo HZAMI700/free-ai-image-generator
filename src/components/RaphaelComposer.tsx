@@ -32,6 +32,8 @@ import {
 interface RaphaelComposerProps {
   promptValue: string;
   setPromptValue: (val: string) => void;
+  selectedModelId: string;
+  setSelectedModelId: (val: string) => void;
   onGenerate: (data: {
     prompt: string;
     negativePrompt?: string;
@@ -49,6 +51,8 @@ interface RaphaelComposerProps {
 export function RaphaelComposer({
   promptValue,
   setPromptValue,
+  selectedModelId,
+  setSelectedModelId,
   onGenerate,
   isGenerating,
   inCooldown,
@@ -61,7 +65,6 @@ export function RaphaelComposer({
   // Composer Form Settings
   const [selectedRatio, setSelectedRatio] = useState<AspectRatio>("1:1");
   const [selectedStyle, setSelectedStyle] = useState<string>("None");
-  const [selectedModelId, setSelectedModelId] = useState<string>("auto-router");
   const [isFastMode, setIsFastMode] = useState<boolean>(true);
   const [isAiEnhance, setIsAiEnhance] = useState<boolean>(false);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState<boolean>(false);

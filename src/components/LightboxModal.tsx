@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { X, Download, Copy, Check } from "lucide-react";
 import { GenerationHistoryItem } from "@/lib/db";
+import { formatModelName } from "@/lib/constants";
 
 interface LightboxModalProps {
   item: GenerationHistoryItem | null;
@@ -67,7 +68,7 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
           {/* Header Controls */}
           <div className="flex items-center justify-between p-4 bg-stone-900/80 border-b border-stone-800 backdrop-blur-md">
             <div className="flex items-center gap-2 text-xs text-stone-400">
-              <span className="font-bold text-white uppercase">{item.modelUsed || item.providerUsed}</span>
+              <span className="font-bold text-white">{formatModelName(item.modelUsed || item.providerUsed)}</span>
               <span>•</span>
               <span>{item.aspectRatio}</span>
               {item.style && (

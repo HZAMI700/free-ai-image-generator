@@ -17,6 +17,7 @@ import {
   ImageIcon,
 } from "lucide-react";
 import { GenerationHistoryItem } from "@/lib/db";
+import { formatModelName } from "@/lib/constants";
 
 interface GenerationCanvasProps {
   currentResult: GenerationHistoryItem | null;
@@ -130,8 +131,8 @@ export function GenerationCanvas({
                   {currentResult.aspectRatio}
                 </span>
                 <span className="text-stone-300 dark:text-stone-700">•</span>
-                <span className="capitalize text-amber-700 dark:text-amber-400 font-medium">
-                  {currentResult.modelUsed || currentResult.providerUsed}
+                <span className="text-amber-700 dark:text-amber-400 font-semibold">
+                  {formatModelName(currentResult.modelUsed || currentResult.providerUsed)}
                 </span>
               </>
             )}

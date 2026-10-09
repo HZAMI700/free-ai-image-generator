@@ -307,7 +307,7 @@ export class CloudflareProvider implements ImageProvider {
           errorCode: cleanErrorCode,
           error: cleanMessage,
           provider: this.name,
-          modelUsed: config.model,
+          modelUsed: activeModel,
           latencyMs: Date.now() - startTime,
           costEstimated: 0,
         };
@@ -329,7 +329,7 @@ export class CloudflareProvider implements ImageProvider {
             errorCode: "PROVIDER_TEMPORARILY_UNAVAILABLE",
             error: firstErr,
             provider: this.name,
-            modelUsed: config.model,
+            modelUsed: activeModel,
             latencyMs: Date.now() - startTime,
             costEstimated: 0,
           };
@@ -343,7 +343,7 @@ export class CloudflareProvider implements ImageProvider {
             errorCode: "INVALID_RESPONSE",
             error: "Cloudflare Workers AI did not return image data.",
             provider: this.name,
-            modelUsed: config.model,
+            modelUsed: activeModel,
             latencyMs: Date.now() - startTime,
             costEstimated: 0,
           };
@@ -373,7 +373,7 @@ export class CloudflareProvider implements ImageProvider {
         success: true,
         imageBase64: base64Image,
         mimeType,
-        modelUsed: config.model,
+        modelUsed: activeModel,
         provider: this.name,
         latencyMs: Date.now() - startTime,
         costEstimated: 0, // Free tier neurons
@@ -391,7 +391,7 @@ export class CloudflareProvider implements ImageProvider {
           ? "Cloudflare Workers AI request timed out. Trying fallback provider."
           : "Could not connect to Cloudflare Workers AI.",
         provider: this.name,
-        modelUsed: config.model,
+        modelUsed: activeModel,
         latencyMs,
         costEstimated: 0,
       };

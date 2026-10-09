@@ -25,7 +25,7 @@ export function RaphaelFAQ() {
     {
       question: "Can I choose which AI model generates my image?",
       answer:
-        "Yes! You can choose between Auto Smart Router, Cloudflare Workers AI FLUX.1-schnell, Cloudflare SDXL Lightning (1024px), Cloudflare SDXL Base 1.0, Hugging Face FLUX.1, Pollinations FLUX, and AI Horde. If your preferred provider experiences high load, our fallback engine automatically routes to the best available backup.",
+        "Yes! You can choose between Auto Smart Router, Cloudflare Workers AI FLUX.1-schnell, Cloudflare SDXL Lightning (1024px), Cloudflare SDXL Base 1.0, Hugging Face FLUX.1, and AI Horde Distributed. If your preferred provider experiences high load, our fallback engine automatically routes to the best available backup.",
     },
     {
       question: "Do I need to create an account or provide an email?",

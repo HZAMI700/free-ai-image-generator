@@ -89,8 +89,6 @@ export async function POST(req: NextRequest) {
       } else if (requestedModel === "huggingface-flux" || requestedModel === "flux-schnell") {
         preferredProvider = "huggingface";
         preferredModel = "black-forest-labs/FLUX.1-schnell";
-      } else if (requestedModel === "pollinations" || requestedModel === "pollinations-flux") {
-        preferredProvider = "pollinations";
       } else if (requestedModel === "aihorde") {
         preferredProvider = "aihorde";
       } else if (requestedModel === "gemini" || requestedModel === "imagen-3") {

@@ -3,6 +3,7 @@
 import React from "react";
 import { Download, Maximize2, Trash2, HardDrive } from "lucide-react";
 import { GenerationHistoryItem } from "@/lib/db";
+import { formatModelName } from "@/lib/constants";
 
 interface RecentCreationsGridProps {
   items: GenerationHistoryItem[];
@@ -102,7 +103,7 @@ export function RecentCreationsGrid({
                 <div className="flex items-center gap-1.5 text-[9px] text-stone-300 mt-1">
                   <span>{item.aspectRatio}</span>
                   <span>•</span>
-                  <span className="capitalize">{item.modelUsed || item.providerUsed}</span>
+                  <span>{formatModelName(item.modelUsed || item.providerUsed)}</span>
                 </div>
               </div>
             </div>
