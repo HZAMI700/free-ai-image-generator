@@ -22,13 +22,35 @@ export function RecentCreationsGrid({
 
   const handleDownload = (e: React.MouseEvent, item: GenerationHistoryItem) => {
     e.stopPropagation();
-    const link = document.createElement("a");
-    link.href = item.imageBase64 || item.imageUrl;
+    const target = item.imageUrl || item.imageBase64;
+    if (!target) return;
     const slug = item.prompt.slice(0, 30).replace(/[^a-z0-9]/gi, "-").toLowerCase();
-    link.download = `raphael-ai-${slug || "generation"}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const filename = `raphael-ai-${slug || "generation"}.jpg`;
+
+    if (target.startsWith("http")) {
+      fetch(target)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        })
+        .catch(() => {
+          window.open(target, "_blank");
+        });
+    } else {
+      const link = document.createElement("a");
+      link.href = target;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
@@ -61,8 +83,14 @@ export function RecentCreationsGrid({
             className="group relative rounded-2xl overflow-hidden bg-stone-100 dark:bg-[#201913] border border-stone-200/80 dark:border-stone-800 cursor-pointer aspect-square shadow-2xs hover:shadow-md transition-all duration-300"
           >
             <img
-              src={item.imageBase64 || item.imageUrl}
+              src={item.imageUrl || item.imageBase64}
               alt={item.prompt}
+              onError={(e) => {
+                const el = e.currentTarget;
+                if (item.imageBase64 && el.src !== item.imageBase64) {
+                  el.src = item.imageBase64;
+                }
+              }}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
             />

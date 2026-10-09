@@ -43,6 +43,38 @@ export function GenerationCanvas({
   cooldownSeconds,
 }: GenerationCanvasProps) {
   const [copied, setCopied] = useState(false);
+  const primarySrc = currentResult?.imageUrl || currentResult?.imageBase64 || "";
+  const [imgSrc, setImgSrc] = useState<string>(primarySrc);
+  const [imgError, setImgError] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (currentResult) {
+      setImgSrc(currentResult.imageUrl || currentResult.imageBase64 || "");
+      setImgError(false);
+    }
+  }, [currentResult]);
+
+  const handleImageError = () => {
+    if (currentResult) {
+      if (
+        imgSrc === currentResult.imageUrl &&
+        currentResult.imageBase64 &&
+        currentResult.imageBase64 !== currentResult.imageUrl
+      ) {
+        setImgSrc(currentResult.imageBase64);
+        return;
+      }
+      if (
+        imgSrc === currentResult.imageBase64 &&
+        currentResult.imageUrl &&
+        currentResult.imageUrl !== currentResult.imageBase64
+      ) {
+        setImgSrc(currentResult.imageUrl);
+        return;
+      }
+    }
+    setImgError(true);
+  };
 
   const handleCopyPrompt = async () => {
     if (!currentResult) return;
@@ -57,13 +89,35 @@ export function GenerationCanvas({
 
   const handleDownload = () => {
     if (!currentResult) return;
-    const link = document.createElement("a");
-    link.href = currentResult.imageBase64 || currentResult.imageUrl;
+    const target = currentResult.imageUrl || currentResult.imageBase64;
+    if (!target) return;
     const slug = currentResult.prompt.slice(0, 30).replace(/[^a-z0-9]/gi, "-").toLowerCase();
-    link.download = `raphael-ai-${slug || "artwork"}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const filename = `raphael-ai-${slug || "artwork"}.jpg`;
+
+    if (target.startsWith("http")) {
+      fetch(target)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        })
+        .catch(() => {
+          window.open(target, "_blank");
+        });
+    } else {
+      const link = document.createElement("a");
+      link.href = target;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const minutes = Math.floor(cooldownSeconds / 60);
@@ -188,11 +242,30 @@ export function GenerationCanvas({
           {/* STATE 2: IMAGE RESULT PRESENTATION */}
           {!isGenerating && currentResult && (
             <div className="group relative max-w-full max-h-full flex items-center justify-center p-2">
-              <img
-                src={currentResult.imageBase64 || currentResult.imageUrl}
-                alt={currentResult.prompt}
-                className="max-h-[460px] lg:max-h-[520px] w-auto max-w-full object-contain rounded-xl sm:rounded-2xl shadow-xl transition-transform duration-300 group-hover:scale-[1.01]"
-              />
+              {imgError ? (
+                <div className="p-6 text-center max-w-md bg-stone-100 dark:bg-stone-850 rounded-2xl border border-stone-200 dark:border-stone-800">
+                  <ImageIcon className="w-8 h-8 mx-auto text-amber-600 mb-2" />
+                  <p className="text-xs font-semibold text-stone-900 dark:text-stone-100 mb-3">
+                    Image rendered. Direct access link:
+                  </p>
+                  <a
+                    href={currentResult.imageUrl || currentResult.imageBase64}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 text-white text-xs font-semibold hover:bg-amber-500 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Open High-Res Artwork</span>
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={imgSrc || currentResult.imageUrl || currentResult.imageBase64}
+                  alt={currentResult.prompt}
+                  onError={handleImageError}
+                  className="max-h-[460px] lg:max-h-[520px] w-auto max-w-full object-contain rounded-xl sm:rounded-2xl shadow-xl transition-transform duration-300 group-hover:scale-[1.01]"
+                />
+              )}
 
               {/* Hover Quick Action Ribbon */}
               <div className="absolute bottom-4 inset-x-4 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">

@@ -26,13 +26,35 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
   if (!item) return null;
 
   const handleDownload = () => {
-    const link = document.createElement("a");
-    link.href = item.imageBase64 || item.imageUrl;
+    const target = item.imageUrl || item.imageBase64;
+    if (!target) return;
     const slug = item.prompt.slice(0, 30).replace(/[^a-z0-9]/gi, "-").toLowerCase();
-    link.download = `raphael-ai-${slug || "image"}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const filename = `raphael-ai-${slug || "image"}.jpg`;
+
+    if (target.startsWith("http")) {
+      fetch(target)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        })
+        .catch(() => {
+          window.open(target, "_blank");
+        });
+    } else {
+      const link = document.createElement("a");
+      link.href = target;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const handleCopyPrompt = async () => {
@@ -107,8 +129,14 @@ export function LightboxModal({ item, onClose }: LightboxModalProps) {
           {/* Centered Image */}
           <div className="relative flex-1 min-h-[300px] flex items-center justify-center p-2 sm:p-6 bg-stone-950 overflow-auto">
             <img
-              src={item.imageBase64 || item.imageUrl}
+              src={item.imageUrl || item.imageBase64}
               alt={item.prompt}
+              onError={(e) => {
+                const el = e.currentTarget;
+                if (item.imageBase64 && el.src !== item.imageBase64) {
+                  el.src = item.imageBase64;
+                }
+              }}
               className="max-h-[75vh] w-auto max-w-full object-contain rounded-xl shadow-2xl"
             />
           </div>

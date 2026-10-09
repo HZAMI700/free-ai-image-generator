@@ -45,9 +45,14 @@ class ImageStorage {
     modelUsed: string
   ): Promise<{ id: string; url: string; expiresAt: number }> {
     const id = crypto.randomUUID();
-    const buffer = Buffer.isBuffer(base64OrBuffer)
-      ? base64OrBuffer
-      : Buffer.from(base64OrBuffer, "base64");
+    let buffer: Buffer;
+
+    if (Buffer.isBuffer(base64OrBuffer)) {
+      buffer = base64OrBuffer;
+    } else {
+      const cleanStr = (base64OrBuffer || "").replace(/^data:[^;]+;base64,/, "");
+      buffer = Buffer.from(cleanStr, "base64");
+    }
 
     const now = Date.now();
     const expiresAt = now + this.ttlMs;

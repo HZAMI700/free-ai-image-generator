@@ -154,11 +154,22 @@ export async function POST(req: NextRequest) {
     const seconds = 180 % 60;
     const formattedTimer = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
+    const directImageUrl = response.imageUrl || url;
+    let cleanBase64 = response.imageBase64 || "";
+    if (cleanBase64.startsWith("data:")) {
+      // already has data: prefix
+    } else if (cleanBase64 && !cleanBase64.startsWith("http")) {
+      cleanBase64 = `data:${response.mimeType || "image/jpeg"};base64,${cleanBase64}`;
+    } else {
+      cleanBase64 = directImageUrl;
+    }
+
     const res = NextResponse.json({
       success: true,
       id,
-      imageUrl: url,
-      imageBase64: `data:${response.mimeType || "image/jpeg"};base64,${response.imageBase64}`,
+      imageUrl: directImageUrl,
+      backupImageUrl: url,
+      imageBase64: cleanBase64,
       prompt,
       style,
       aspectRatio,

@@ -184,23 +184,27 @@ export default function RaphaelAppPage() {
       // Success
       setGenerationStatusText("Image generated successfully!");
 
+      const finalImgUrl = data.imageUrl || data.imageBase64 || data.backupImageUrl || "";
+      const finalBase64 = data.imageBase64 || data.imageUrl || "";
+
       const newItem: GenerationHistoryItem = {
-        id: data.id,
-        imageUrl: data.imageUrl,
-        imageBase64: data.imageBase64,
+        id: data.id || `gen-${Date.now()}`,
+        imageUrl: finalImgUrl,
+        imageBase64: finalBase64,
         prompt: data.prompt,
         style: data.style,
         aspectRatio: data.aspectRatio,
-        providerUsed: data.providerUsed,
+        providerUsed: data.providerUsed || "runware",
         modelUsed: data.modelUsed,
         createdAt: Date.now(),
       };
 
       setCurrentResult(newItem);
 
-      // Save to IndexedDB
-      await saveHistoryItem(newItem);
-      loadHistory();
+      // Save to IndexedDB non-blocking so it never interrupts the UI
+      saveHistoryItem(newItem)
+        .then(() => loadHistory())
+        .catch((err) => console.warn("[IndexedDB] Could not cache to local database:", err));
 
       // Enforce 3-minute cooldown from server
       if (data.cooldown) {
@@ -208,12 +212,17 @@ export default function RaphaelAppPage() {
         setCooldownSeconds(data.cooldown.remainingSeconds || 180);
       }
 
-      // Scroll to canvas to show result
-      canvasRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    } catch {
+      // Smoothly scroll to canvas to show result
+      setTimeout(() => {
+        canvasRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    } catch (err: unknown) {
       clearTimeout(timer1);
       clearTimeout(timer2);
-      setGlobalError("Connection interrupted. Please verify your internet connection and try again.");
+      console.error("[Generate Client Error]:", err);
+      setGlobalError(
+        (err as Error)?.message || "Connection interrupted. Please verify your internet connection and try again."
+      );
     } finally {
       setIsGenerating(false);
     }
