@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     const cookieToken = req.cookies.get("__cooldown_token")?.value;
-    const cooldownStatus = rateLimiter.checkCooldown(req.headers, cookieToken);
+    const cooldownStatus = await rateLimiter.checkCooldownAsync(req.headers, cookieToken);
 
     return NextResponse.json({
       inCooldown: cooldownStatus.inCooldown,

@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { serverDb } from "@/lib/db-server";
 
 export interface CooldownStatus {
   inCooldown: boolean;
@@ -43,7 +44,7 @@ class RateLimiter {
     }
   }
 
-  private hashIp(ip: string): string {
+  public hashIp(ip: string): string {
     return crypto.createHash("sha256").update(ip + SECRET).digest("hex").slice(0, 16);
   }
 
@@ -175,6 +176,45 @@ class RateLimiter {
   }
 
   /**
+   * Asynchronously checks whether the user is in cooldown, checking memory first
+   * and falling back to Supabase PostgreSQL if memory has no active record.
+   */
+  async checkCooldownAsync(headers: Headers, cookieToken?: string): Promise<CooldownStatus> {
+    // 1. Check fast synchronous memory/cookie checks first
+    const memoryStatus = this.checkCooldown(headers, cookieToken);
+    if (memoryStatus.inCooldown) {
+      return memoryStatus;
+    }
+
+    // 2. Query Supabase database
+    const ip = this.extractIp(headers);
+    const ipHash = this.hashIp(ip);
+    const deviceId = headers.get("x-device-id") || "";
+
+    const dbNextAvailableAt = await serverDb.getActiveCooldown(ipHash, deviceId);
+    const now = Date.now();
+
+    if (dbNextAvailableAt && dbNextAvailableAt > now) {
+      const remainingSeconds = Math.ceil((dbNextAvailableAt - now) / 1000);
+      this.ipStore.set(ip, dbNextAvailableAt - COOLDOWN_DURATION_MS);
+      if (deviceId) this.deviceStore.set(deviceId, dbNextAvailableAt - COOLDOWN_DURATION_MS);
+
+      return {
+        inCooldown: true,
+        remainingSeconds,
+        nextAvailableAt: dbNextAvailableAt,
+        reason: "Persistent database cooldown active",
+      };
+    }
+
+    return {
+      inCooldown: false,
+      remainingSeconds: 0,
+      nextAvailableAt: 0,
+    };
+  }
+
+  /**
    * Registers a successful generation and locks cooldown for 3 minutes (180s)
    */
   recordGeneration(headers: Headers, deviceIdFromClient?: string): { token: string; expiresAt: number } {
@@ -186,6 +226,9 @@ class RateLimiter {
     // Set server-side timestamps
     this.ipStore.set(ip, now);
     this.deviceStore.set(deviceId, now);
+
+    // Persist to Supabase asynchronously
+    serverDb.saveCooldown(this.hashIp(ip), deviceId, expiresAt).catch(() => {});
 
     // Create cryptographically signed token
     const token = this.signCooldownToken(ip, deviceId, expiresAt);

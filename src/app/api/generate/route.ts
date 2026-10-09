@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { rateLimiter } from "@/router/rate-limiter";
 import { providerRouter } from "@/router/provider-router";
 import { imageStorage } from "@/lib/storage";
+import { serverDb } from "@/lib/db-server";
 import { AspectRatio, ImageGenerationOptions } from "@/providers/types";
 
 export const maxDuration = 60; // Allow sufficient time for provider failover
@@ -42,9 +43,9 @@ export async function POST(req: NextRequest) {
     const quality = body.quality === "hd" ? "hd" : "standard";
     const deviceId = typeof body.deviceId === "string" ? body.deviceId : req.headers.get("x-device-id") || undefined;
 
-    // 1. Strict Server-Side Rate Limiter Check (3-minute cooldown)
+    // 1. Strict Server-Side Rate Limiter Check (3-minute cooldown with DB persistence)
     const cookieToken = req.cookies.get("__cooldown_token")?.value;
-    const cooldownStatus = rateLimiter.checkCooldown(req.headers, cookieToken);
+    const cooldownStatus = await rateLimiter.checkCooldownAsync(req.headers, cookieToken);
 
     if (cooldownStatus.inCooldown) {
       const minutes = Math.floor(cooldownStatus.remainingSeconds / 60);
@@ -126,6 +127,25 @@ export async function POST(req: NextRequest) {
       response.provider,
       response.modelUsed
     );
+
+    // Record to Supabase PostgreSQL asynchronously
+    serverDb
+      .recordGeneratedImage({
+        id,
+        prompt,
+        negativePrompt,
+        modelUsed: response.modelUsed,
+        providerUsed: response.provider,
+        aspectRatio,
+        imageUrl: url,
+        latencyMs: response.latencyMs,
+        expiresAt: imageExpiresAt,
+      })
+      .catch(() => {});
+
+    serverDb
+      .recordLog(response.provider, response.modelUsed, response.latencyMs, "success")
+      .catch(() => {});
 
     // 5. Enforce 3-minute cooldown on server and generate cryptographic token
     const cooldownRecord = rateLimiter.recordGeneration(req.headers, deviceId);

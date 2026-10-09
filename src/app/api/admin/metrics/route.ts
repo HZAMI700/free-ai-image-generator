@@ -5,6 +5,7 @@ import { quotaManager } from "@/router/quota-manager";
 import { fallbackManager } from "@/router/fallback-manager";
 import { rateLimiter } from "@/router/rate-limiter";
 import { imageStorage } from "@/lib/storage";
+import { serverDb } from "@/lib/db-server";
 
 const ADMIN_KEY = process.env.ADMIN_SECRET_KEY || "admin123";
 
@@ -43,8 +44,11 @@ export async function GET(req: NextRequest) {
     })
   );
 
+  const dbHealth = await serverDb.checkHealth();
+
   return NextResponse.json({
     timestamp: Date.now(),
+    database: dbHealth,
     providers: providerData,
     metrics: {
       activeCooldowns: rateLimiter.getActiveCooldownCount(),
